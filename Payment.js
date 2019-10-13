@@ -8,24 +8,7 @@ fetch('http://api.reimaginebanking.com/atms?lat=38.9283&lng=-77.1753&rad=1&key=e
      
 //create escrow
 const createEscrow = () => {
-    fetch('http://api.reimaginebanking.com/merchants?key=e11057297c6bb0535b4ffa00cdd87052', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify ({
-            "_id": "ESCROW",
-            "first_name": "ESCROW",
-            "last_name": "ESCROW",
-            "address": {
-                "street_number": "ESCROW",
-                "street_name": "ESCROW",
-                "city": "ESCROW",
-                "state": "ESCROW",
-                "zip": "ESCROW"
-            }
-        })
-    })
+    createCustomer("ESCROW", "ESCROW", "ESCROW", "ESCROW", "ESCROW", "ESCROW", "ESCROW")
 }
 
 export const getEscrow = () => {
@@ -53,12 +36,29 @@ export const sendMoneyToEscrow = (id, amount) => {
     });
 }
 
-const sendMoneyToCustomer = () => {
-
+const sendMoneyToCustomer = (id, amount) => {
+    fetch(`http://api.reimaginebanking.com/accounts/ESCROW/transfers?key=e11057297c6bb0535b4ffa00cdd87052`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify ({
+            "medium": "balance",
+            "amount": `${amount}`,
+            "payee_id": `${id}`,
+            "transaction_date": Date.toString(),
+            "status": "completed",
+            "description": "string"
+        })
+    });
 }
 
-export const completeTransaction = (id) => {
-    
+export const completeTransaction = (sender_id, receiver_id) => {
+    //calls sendmoneytocustomer and sends what 
+}
+
+export const cancelTransaction = (sender_id) => {
+
 }
 
 //create customer
