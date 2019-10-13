@@ -42,6 +42,8 @@
 <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.2.0/firebase-storage.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script src="/capitalone-api.js"></script>
 
 
 <script>
@@ -154,7 +156,7 @@
                   <button onclick="window.location = 'index.html'"
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Back</button>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <button onclick="back();"
+                  <button id="purchase"
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Purchase</button>
               </div>
             </div>
@@ -192,6 +194,11 @@
 
     var docRef = db.collection("listings").doc(id);
 
+    function purchase(itemId, price, title) {
+      takePayment("5da29b9b322fa016762f326b", price, title);
+      window.location.href = `/confirm.html?title=${title}`
+    }
+
     docRef.get().then(function (doc) {
       if (doc.exists) {
 
@@ -206,6 +213,10 @@
         document.getElementById("image").src = data.image;
         document.getElementById("category").innerHTML = data.category;
         document.getElementById("loading_photo").style.display = "none";
+
+        document.getElementById("purchase").addEventListener("click", function() {
+          purchase(id, data.price, data.title);
+        })
       } else {
         // doc.data() will be undefined in this case
         console.log("No such document!");

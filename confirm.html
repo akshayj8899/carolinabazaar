@@ -40,6 +40,11 @@
         z-index: 900;
       }
     </style>
+    <script>
+    function goHome() {
+      window.location.href = "/index.html";
+    }
+    </script>
   </head>
   <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
     <div
@@ -79,16 +84,18 @@
 
           <div class="demo-card-wide mdl-card mdl-shadow--2dp">
             <div class="mdl-card__title">
-              <h2 class="mdl-card__title-text">Confirm</h2>
+              <h2 class="mdl-card__title-text">Purchase Confirmation</h2>
             </div>
             <div class="mdl-card__supporting-text">
-              Are you sure you want to purchase [Item name here]?
+              You have successfully purchased <span id=title></span>. You can email the seller at dmanila@live.unc.edu, to get in contact to exchange the purchase.
+              When you have received the item, click the confirm button on current listings to finish the transaction.
             </div>
             <div class="mdl-card__actions mdl-card--border">
               <a
                 class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+                onclick="goHome()"
               >
-                Get Started
+                Return Home
               </a>
             </div>
             <div class="mdl-card__menu">
@@ -114,5 +121,10 @@
     </div>
 
     <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script>
+          var urlParams = new URLSearchParams(window.location.search);
+          var title = urlParams.get('title');
+          document.getElementById('title').innerHTML = title;
+    </script>
   </body>
 </html>
