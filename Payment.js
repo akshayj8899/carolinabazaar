@@ -54,7 +54,6 @@ export const sendMoneyToEscrow = (id, amount) => {
 }
 
 const sendMoneyToCustomer = () => {
-    //makes call to send money from escrow to buyer
 
 }
 
