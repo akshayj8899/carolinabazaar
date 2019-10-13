@@ -97,31 +97,56 @@
         </style>
 
 
-        <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-          <div class="mdl-card mdl-cell mdl-cell--12-col">
-            <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing">
-              <h4 class="mdl-cell mdl-cell--12-col">Make Listing</h4>
+
+
+        <div class="mdl-grid" style="justify-content: center">
+
+
+
+          <div class="mdl-card mdl-cell mdl-cell--4-col mdl-shadow--2dp mdl-cell--top" id="side_image">
+
+            <center>
+              <div class="mdl-spinner mdl-js-spinner is-active" id="loading_photo" style="margin-top: 50px;"></div>
+            </center>
+
+            <img src="" id="image" width="100%">
+          </div>
+
+
+          <div class="mdl-card mdl-cell mdl-cell--6-col">
+            <center>
+              <div class="mdl-spinner mdl-js-spinner is-active" id="loading_text" style="margin-top: 50px;"></div>
+            </center>
+
+            <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing" id="content" style="display: none;">
+              <h4 class="mdl-cell mdl-cell--12-col">Edit Listing</h4>
 
               <table>
                 <tr>
                   <td>
+                    <b>Item Title</b>
+                    <br>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                       <input class="mdl-textfield__input" type="text" id="title">
-                      <label class="mdl-textfield__label" for="sample3">Item Title</label>
+                      <label class="mdl-textfield__label" for="sample3"></label>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>
+                    <b>Description</b>
+                    <br>
                     <div class="mdl-textfield mdl-js-textfield">
                       <textarea class="mdl-textfield__input" type="text" rows="3" id="description"></textarea>
-                      <label class="mdl-textfield__label" for="sample5">Description</label>
+                      <label class="mdl-textfield__label" for="sample5"></label>
                     </div>
                   </td>
                 </tr>
 
                 <tr>
                   <td>
+                    <b>Category</b>
+                    <br>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                       <select class="mdl-textfield__input" id="category" name="octane">
                         <option></option>
@@ -130,15 +155,17 @@
                         <option value="Clothing">Clothing</option>
                         <option value="Miscellaneous">Miscellaneous</option>
                       </select>
-                      <label class="mdl-textfield__label" for="octane">Category</label>
+                      <label class="mdl-textfield__label" for="octane"></label>
                     </div>
                   </td>
                 </tr>
                 <tr>
                   <td>
+                    <b>$ Price</b>
+                    <br>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                       <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="price">
-                      <label class="mdl-textfield__label" for="sample4">$ Price</label>
+                      <label class="mdl-textfield__label" for="sample4"></label>
                       <span class="mdl-textfield__error">Input is not a price!</span>
                     </div>
                   </td>
@@ -165,26 +192,21 @@
                     </button></td>
                 </tr>
               </table>
+
               <br>
               <input id="uploadimage" type="file" name="pic" accept="image/*" hidden></input>
 
             </div>
           </div>
-        </section>
+
+        </div>
+
 
 
         <br>
         <br>
       </div>
-      <footer class="mdl-mini-footer">
-        <div class="mdl-mini-footer__left-section">
-          <div class="mdl-logo">A Panda Apps Creation ©</div>
-          <ul class="mdl-mini-footer__link-list">
-            <li><a href="#">Nonexistent Help</a></li>
-            <li><a href="#">Nonexistent Privacy &amp; Terms</a></li>
-          </ul>
-        </div>
-      </footer>
+
     </main>
 
 
@@ -201,8 +223,13 @@
     function uploadImage() {
       var uploadButton = document.getElementById("uploadimage");
 
+      document.getElementById("side_image").style.display = "none";
+
       uploadButton.addEventListener("change", function (e) {
+        console.log(e);
+
         file = e.target.files[0];
+
       });
       document.getElementById('uploadimage').click();
     }
@@ -229,34 +256,27 @@
 
       var db = firebase.firestore();
 
-      var listing = db.collection("users/" + uid + "/listings").doc();
-      const listingKey = listing.id;
+      //var listing = db.collection("users/" + uid + "/listings").doc();
+      //const listingKey = listing.id;
 
-      var storageRef = firebase.storage().ref(uid + "/" + listingKey + ".jpg");
-      var task = storageRef.put(file);
-      
+      var urlParams = new URLSearchParams(window.location.search);
+      var listingKey = urlParams.get('id');
 
-      task.on("state_changed",
-        function (snapshot) {
-          var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        },
-        function (error) {
 
-        },
+      if (file != null) {
+        var storageRef = firebase.storage().ref(uid + "/" + listingKey + ".jpg");
+        var task = storageRef.put(file);
+        task.on("state_changed",
+          function (snapshot) {
+            var percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          },
+          function (error) {
 
-        function () {
-          task.snapshot.ref.getDownloadURL().then(function (url) {
-            listing.set({
-              title: title,
-              description: description,
-              price: price,
-              category: category,
-              image: url,
-              time: firebase.firestore.FieldValue.serverTimestamp(),
-              seller: uid
+          },
 
-            }).then(function () {
-              db.collection("listings").doc(listingKey).set({
+          function () {
+            task.snapshot.ref.getDownloadURL().then(function (url) {
+              db.collection("users/" + uid + "/listings").doc(listingKey).update({
                 title: title,
                 description: description,
                 price: price,
@@ -264,18 +284,97 @@
                 image: url,
                 time: firebase.firestore.FieldValue.serverTimestamp(),
                 seller: uid
+
               }).then(function () {
-                window.location = "inprogress.html";
+                db.collection("listings").doc(listingKey).update({
+                  title: title,
+                  description: description,
+                  price: price,
+                  category: category,
+                  image: url,
+                  time: firebase.firestore.FieldValue.serverTimestamp(),
+                  seller: uid
+                }).then(function () {
+                  window.location = "inprogress.html";
+                });
               });
+
+
             });
+          }
+        );
+      }
+      else {
+        db.collection("users/" + uid + "/listings").doc(listingKey).update({
+          title: title,
+          description: description,
+          price: price,
+          category: category,
+          time: firebase.firestore.FieldValue.serverTimestamp(),
+          seller: uid
 
-
+        }).then(function () {
+          db.collection("listings").doc(listingKey).update({
+            title: title,
+            description: description,
+            price: price,
+            category: category,
+            time: firebase.firestore.FieldValue.serverTimestamp(),
+            seller: uid
+          }).then(function () {
+            window.location = "inprogress.html";
           });
-        }
-      );
+
+        });
+
+
+      }
     }
 
   </script>
+
+
+
+  <script>
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var id = urlParams.get('id');
+
+    var db = firebase.firestore();
+
+    var docRef = db.collection("listings").doc(id);
+
+    docRef.get().then(function (doc) {
+      if (doc.exists) {
+
+
+        document.getElementById("loading_text").style.display = "none";
+        document.getElementById("loading_photo").style.display = "none";
+
+        document.getElementById("content").style.display = "block";
+
+        var data = doc.data();
+
+
+
+        document.getElementById("title").value = data.title;
+        document.getElementById("title").parentElement.classList.add("is-upgraded");
+
+        document.getElementById("description").value = data.description;
+        document.getElementById("price").value = data.price;
+        document.getElementById("category").value = data.category;
+        document.getElementById("image").src = data.image;
+
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
+    }).catch(function (error) {
+      console.log("Error getting document:", error);
+    });
+  </script>
+
+
 
   <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 </body>
