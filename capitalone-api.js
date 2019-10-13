@@ -1,16 +1,25 @@
+function getCurrentDate() {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    today = yyyy + '-' + mm + '-' + dd;
+}
+
 function takePayment(accountId, amount, description) {
     return $.ajax({
         type: 'POST',
-        url: "http://api.reimaginebanking.com/accounts/5da2a5293c8c2216c9fcb3ce/transfers?key=5e4c50ea359b3b55f96057d4bcc7a164",
+        url: `http://api.reimaginebanking.com/accounts/${accountId}/purchases?key=5e4c50ea359b3b55f96057d4bcc7a164`,
         contentType: 'application/json',
         data: JSON.stringify(
             {
-                medium: "balance",
-                payee_id: `${accountId}`,
-                transaction_date: "2019-10-13",
-                status: "pending",
-                description: description,
-                amount: amount
+                "merchant_id": "5da2a0e73c8c2216c9fcb3c8",
+                "medium": "balance",
+                "purchase_date": getCurrentDate(),
+                "amount": amount,
+                "status": "pending",
+                "description": description
             }
         )
     });
@@ -19,17 +28,16 @@ function takePayment(accountId, amount, description) {
 function payUser(accountId, amount, description) {
     return $.ajax({
         type: 'POST',
-        url: `http://api.reimaginebanking.com/accounts/${accountId}/transfers?key=5e4c50ea359b3b55f96057d4bcc7a1641`,
+        url: `http://api.reimaginebanking.com/accounts/${accountId}/deposits?key=5e4c50ea359b3b55f96057d4bcc7a164`,
         contentType: 'application/json',
         data: JSON.stringify(
             {
-                medium: "balance",
-                payee_id: "5da2a5293c8c2216c9fcb3ce",
-                transaction_date: "2019-10-13",
-                status: "pending",
-                description: description,
-                amount: amount
-            }
+                "medium": "balance",
+                "transaction_date": getCurrentDate(),
+                "status": "pending",
+                "description": description,
+                "amount": amount
+}
         )
     });
 }
