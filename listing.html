@@ -128,16 +128,16 @@
 
           <div class="mdl-card mdl-cell mdl-cell--4-col mdl-shadow--2dp mdl-cell--top" id="side_image">
 
-              <center>
+            <center>
               <div class="mdl-spinner mdl-js-spinner is-active" id="loading_photo" style="margin-top: 50px;"></div>
-             </center>
+            </center>
 
-           <img src="" id="image" width="100%">
+            <img src="" id="image" width="100%">
           </div>
 
           <div class="mdl-card mdl-cell mdl-cell--6-col mdl-cell--top mdl-shadow--2dp">
             <center>
-                <div class="mdl-spinner mdl-js-spinner is-active" id="loading_text" style="margin-top: 50px;"></div>
+              <div class="mdl-spinner mdl-js-spinner is-active" id="loading_text" style="margin-top: 50px;"></div>
             </center>
 
             <div class="mdl-card__supporting-text" id="meta_data" style="display: none;">
@@ -153,20 +153,20 @@
 
               <br>
 
-                  <button onclick="window.location = 'index.html'"
-                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Back</button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <button id="purchase"
-                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Purchase</button>
-              </div>
+              <button onclick="window.location = 'index.html'"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Back</button>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <button id="purchase"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Purchase</button>
             </div>
           </div>
-
-
-
         </div>
 
+
+
       </div>
+
+  </div>
   </div>
 
   </main>
@@ -185,7 +185,7 @@
   </div>
 
   <script>
-    
+
     var urlParams = new URLSearchParams(window.location.search);
     var id = urlParams.get('id');
 
@@ -196,13 +196,40 @@
 
     function purchase(itemId, price, title) {
       takePayment("5da29b9b322fa016762f326b", price, title);
-      window.location.href = `/confirm.html?title=${title}`
+
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          db.collection("users/" + user.uid + "/buying").doc(id).set({
+            title: document.getElementById("title").innerHTML,
+            description: document.getElementById("description").innerHTML,
+            price: document.getElementById("price").innerHTML,
+            category: document.getElementById("category").innerHTML,
+            image: document.getElementById("image").src,
+            time: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(function () {
+
+            db.collection("listings").doc(id).delete().then(function () {
+              window.location.href = `/confirm.html?title=${title}`
+            }).catch(function (error) {
+              console.error("Error removing document: ", error);
+            });
+          });
+
+        } else {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          firebase.auth().signInWithRedirect(provider);
+        }
+      });
+
+
+
+
     }
 
     docRef.get().then(function (doc) {
       if (doc.exists) {
 
-        
+
         document.getElementById("loading_text").style.display = "none";
         document.getElementById("meta_data").style.display = "block";
 
@@ -214,7 +241,7 @@
         document.getElementById("category").innerHTML = data.category;
         document.getElementById("loading_photo").style.display = "none";
 
-        document.getElementById("purchase").addEventListener("click", function() {
+        document.getElementById("purchase").addEventListener("click", function () {
           purchase(id, data.price, data.title);
         })
       } else {
